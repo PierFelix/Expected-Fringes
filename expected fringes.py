@@ -1,3 +1,10 @@
+"""
+Part of repository: 
+https://github.com/PierFelix/Expected-Fringes
+
+@author: PierFelix
+"""
+
 from os.path import dirname
 import numpy as np
 import matplotlib.pyplot as plt
