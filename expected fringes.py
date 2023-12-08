@@ -7,30 +7,30 @@ https://github.com/PierFelix/Expected-Fringes
 
 from os.path import dirname
 import numpy as np
+from numpy import sin, cos, tan, arcsin # imports them without needing the np. infront, easy of writing out formula
 import matplotlib.pyplot as plt
 
-d = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0] # mm
-wavelength = 532e-6 # nm
+t = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0] # mm
+wavelength = 532e-6 # mm
 material = "Acrylic"
 n = 1.48899
 
 min_deg = 0
-max_deg = 15
+max_deg = 10
 steps = 10000
-plot_y_limit = 175
+plot_y_limit = 90
 
-sin = np.sin
-cos = np.cos
-tan = np.tan
-arcsin = np.arcsin
-
-i_deg = np.linspace(min_deg, max_deg, steps)
-i_rad = (i_deg*np.pi)/180 # numpy only works with radians
-
-def fringes(thickness, index_of_refraction, wavelength, angle_i):
+def fringes1(thickness, index_of_refraction, wavelength, angle_i):
     """
-    N = (2d / wavelength) * ((n/cos(r)+tan(i)*sin(i)-tan(r)*sin(i)-(n-1)-(1/cos(i))))
+    Calculates the expected amount of fringes, approximates the index of refraction of air as 1. 
+
+    N = (2t / wavelength) * ((n/cos(r)+tan(i)*sin(i)-tan(r)*sin(i)-(n-1)-(1/cos(i)))) \n
     r = arcsin(sin(i)/n)
+
+    thickness: thickness of the material
+    index_of_refraction: index of refraction of the material
+    wavelength: wavelength of the light emitted by the laser
+    angle_i: angle of incidence of the light
     """
 
     N = (2*thickness / wavelength) * ((index_of_refraction/cos(arcsin(sin(angle_i)/n)))+tan(angle_i)*sin(angle_i)-tan(arcsin(sin(angle_i)/n))*sin(angle_i)-(index_of_refraction-1)-(1/cos(angle_i)))
@@ -45,10 +45,13 @@ def plots(x, y, ax, label="", color = None) -> None:
 
 
 if __name__ == "__main__":
+    i_deg = np.linspace(min_deg, max_deg, steps)
+    i_rad = (i_deg*np.pi)/180 # numpy only works with radians
+
     fig, ax1 = plt.subplots()
 
-    for j in d:
-        N = fringes(j, n, wavelength, i_rad)
+    for j in t:
+        N = fringes1(j, n, wavelength, i_rad)
         plots(x=i_deg, y=N, ax=ax1, label=f"{j} mm")
 
     ax1.set_title(f"Material: {material}, n = {n}")
