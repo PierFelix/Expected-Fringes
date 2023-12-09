@@ -10,16 +10,6 @@ import numpy as np
 from numpy import sin, cos, tan, arcsin # imports them without needing the np. infront, easy of writing out formula
 import matplotlib.pyplot as plt
 
-t = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0] # mm
-wavelength = 532e-6 # mm
-material = "Acrylic"
-n = 1.48899
-
-min_deg = 0
-max_deg = 10
-steps = 10000
-plot_y_limit = 90
-
 def fringes1(thickness, index_of_refraction, wavelength, angle_i):
     """
     Calculates the expected amount of fringes, approximates the index of refraction of air as 1. 
@@ -45,14 +35,29 @@ def plots(x, y, ax, label="", color = None) -> None:
 
 
 if __name__ == "__main__":
+    t = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0] # mm
+    wavelength = 532e-6 # mm
+    material = "Acrylic"
+    n = 1.48899
+
+    min_deg = 0
+    max_deg = 10
+    steps = 10000
+    plot_y_limit = 90
+
+    plot = True
+
     i_deg = np.linspace(min_deg, max_deg, steps)
     i_rad = (i_deg*np.pi)/180 # numpy only works with radians
 
     fig, ax1 = plt.subplots()
 
+    table = []
     for j in t:
         N = fringes1(j, n, wavelength, i_rad)
-        plots(x=i_deg, y=N, ax=ax1, label=f"{j} mm")
+        table.append(N[-1])
+        if plot:
+            plots(x=i_deg, y=N, ax=ax1, label=f"{j} mm")
 
     ax1.set_title(f"Material: {material}, n = {n}")
     ax1.set_ylim(0, plot_y_limit)
@@ -64,3 +69,7 @@ if __name__ == "__main__":
     ax1.grid()
     fig.savefig(f"{dirname(__file__)}/{material}.png")
     plt.close()
+
+    print(f"Angle: {max_deg} degrees")
+    for j in range(len(t)):
+        print(f"{t[j]}mm = {round(table[j], 1)} fringes")
