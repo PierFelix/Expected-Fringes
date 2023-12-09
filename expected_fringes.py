@@ -5,11 +5,10 @@ https://github.com/PierFelix/Interfometer-Refractive-Index-Measurements
 @author: PierFelix
 """
 
-from os.path import dirname
 import numpy as np
 import matplotlib.pyplot as plt
 
-def fringes(thickness, index_of_refraction, wavelength, angle_i):
+def fringes(thickness, index_of_refraction, wavelength, angle_i, deg = True):
     """
     Calculates the expected amount of fringes, approximates the index of refraction of air as 1. 
 
@@ -21,6 +20,9 @@ def fringes(thickness, index_of_refraction, wavelength, angle_i):
     wavelength: wavelength of the light emitted by the laser
     angle_i: angle of incidence of the light
     """
+    if deg:
+        angle_i = (angle_i*np.pi)/180 # numpy only works with radians
+
     sin_i = np.sin(angle_i)
     r = np.arcsin(sin_i/index_of_refraction)
     N = (2*thickness / wavelength) * ((index_of_refraction/np.cos(r))+np.tan(angle_i)*sin_i-np.tan(r)*sin_i-(index_of_refraction-1)-(1/np.cos(angle_i)))
@@ -35,7 +37,8 @@ def plots(x, y, ax, label="", color = None) -> None:
 
 
 if __name__ == "__main__":
-    t = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0] # mm
+    from os.path import dirname
+    t = [1.0, 2.0, 3.0, 4.0] # mm
     wavelength = 532e-6 # mm
     material = "Acrylic"
     n = 1.48899
@@ -43,18 +46,17 @@ if __name__ == "__main__":
     min_deg = 0
     max_deg = 10
     steps = 10000
-    plot_y_limit = 90
+    plot_y_limit = 80
 
     plot = True
 
     i_deg = np.linspace(min_deg, max_deg, steps)
-    i_rad = (i_deg*np.pi)/180 # numpy only works with radians
 
     fig, ax1 = plt.subplots()
 
     table = []
     for j in t:
-        N = fringes(j, n, wavelength, i_rad)
+        N = fringes(j, n, wavelength, i_deg)
         table.append(N[-1])
         if plot:
             plots(x=i_deg, y=N, ax=ax1, label=f"{j} mm")
