@@ -1,13 +1,12 @@
 """
 Part of repository: 
-https://github.com/PierFelix/Expected-Fringes
+https://github.com/PierFelix/Interfometer-Refractive-Index-Measurements
 
 @author: PierFelix
 """
 
 from os.path import dirname
 import numpy as np
-from numpy import sin, cos, tan, arcsin # imports them without needing the np. infront, easy of writing out formula
 import matplotlib.pyplot as plt
 
 def fringes1(thickness, index_of_refraction, wavelength, angle_i):
@@ -22,8 +21,9 @@ def fringes1(thickness, index_of_refraction, wavelength, angle_i):
     wavelength: wavelength of the light emitted by the laser
     angle_i: angle of incidence of the light
     """
-
-    N = (2*thickness / wavelength) * ((index_of_refraction/cos(arcsin(sin(angle_i)/n)))+tan(angle_i)*sin(angle_i)-tan(arcsin(sin(angle_i)/n))*sin(angle_i)-(index_of_refraction-1)-(1/cos(angle_i)))
+    sin_i = np.sin(angle_i)
+    r = np.arcsin(sin_i/index_of_refraction)
+    N = (2*thickness / wavelength) * ((index_of_refraction/np.cos(r))+np.tan(angle_i)*sin_i-np.tan(r)*sin_i-(index_of_refraction-1)-(1/np.cos(angle_i)))
     return N
 
 
