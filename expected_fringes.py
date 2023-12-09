@@ -9,7 +9,7 @@ from os.path import dirname
 import numpy as np
 import matplotlib.pyplot as plt
 
-def fringes1(thickness, index_of_refraction, wavelength, angle_i):
+def fringes(thickness, index_of_refraction, wavelength, angle_i):
     """
     Calculates the expected amount of fringes, approximates the index of refraction of air as 1. 
 
@@ -54,7 +54,7 @@ if __name__ == "__main__":
 
     table = []
     for j in t:
-        N = fringes1(j, n, wavelength, i_rad)
+        N = fringes(j, n, wavelength, i_rad)
         table.append(N[-1])
         if plot:
             plots(x=i_deg, y=N, ax=ax1, label=f"{j} mm")
