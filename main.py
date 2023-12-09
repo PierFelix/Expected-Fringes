@@ -5,45 +5,48 @@ https://github.com/PierFelix/Interfometer-Refractive-Index-Measurements
 @author: PierFelix
 """
 
-from expected_fringes import *
-from refractiveindex_calculations import *
+from traceback import format_exc
+# from expected_fringes import *
+# from refractiveindex_calculations import *
+import wx
 
-if __name__ == "__main__":
-    from os.path import dirname
-    t = [1., 2., 3.] # mm
-    wavelength = 532e-6 # mm
-    material = "Glass"
-    n = 1.5
+try:
+    import eel
+except Exception as e:
+    print("Following exception occurred: ")
+    print(format_exc())
+    # Pause on exception before closing
+    print("\nIf Eel does not work, use the designated .py files themself\nAnything inside the last if statement of the files can be edited.\n")
+    input("Press Enter to close the application")
+    exit()
 
-    min_deg = 0
-    max_deg = 10
-    steps = 10000
-    plot_y_limit = 60
 
-    plot = True
 
-    i_deg = np.linspace(min_deg, max_deg, steps)
 
-    fig, ax1 = plt.subplots()
 
-    table = []
-    for j in t:
-        N = fringes(j, n, wavelength, i_deg)
-        table.append(N[-1])
-        if plot:
-            plots(x=i_deg, y=N, ax=ax1, label=f"{j} mm")
+@eel.expose
+def pythonFunction(wildcard="*"):
+    app = wx.App(None)
+    style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
+    dialog = wx.FileDialog(None, 'Open', wildcard=wildcard, style=style)
+    if dialog.ShowModal() == wx.ID_OK:
+        path = dialog.GetPath()
+    else:
+        path = None
+    dialog.Destroy()
+    return path
 
-    ax1.set_title(f"Material: {material}, n = {n}")
-    ax1.set_ylim(0, plot_y_limit)
-    box1 = ax1.get_position()
-    ax1.set_position([box1.x0, box1.y0, box1.width * 0.9, box1.height])
-    ax1.legend(loc='center left', bbox_to_anchor=(1, 0.5), reverse=True, title="Thickness", title_fontsize="large")
-    ax1.set_xlabel("Angle (DEG)")
-    ax1.set_ylabel("Fringes (-)")
-    ax1.grid()
-    fig.savefig(f"{dirname(__file__)}/{material}.png")
-    plt.close()
 
-    print(f"Angle: {max_deg} degrees")
-    for j in range(len(t)):
-        print(f"{t[j]}mm = {round(table[j], 1)} fringes")
+# Start the localhost
+try:
+    if __name__ == "__main__":
+        eel.init('web_interface')
+
+        eel.start('main.html', mode='custom-app', cmdline_args=['--start-maximized'])
+
+except Exception as e:
+    print("Following exception occurred: ")
+    print(format_exc())
+    # Pause on exception before closing
+    input("Press Enter to close the application")
+    exit()

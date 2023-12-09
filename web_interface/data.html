@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Interferometer Refractive Index Measurements</title>
+        <link rel="icon" href="img/icon.png">
+        <link rel="stylesheet" href="css/style.css">
+
+        <!-- Include eel.js - note this file doesn't exist in the 'web_interface directory -->
+        <script type="text/javascript" src="/eel.js"></script>
+        <script type="text/javascript">
+            function getPathToFile() {
+                eel.pythonFunction()(r => console.log(r));
+            };
+        </script>
+    </head>
+
+    <body>
+        <div class="topnav">
+            <a href="main.html">Home</a>
+            <a href="expected fringes.html">Expected Fringes</a>
+            <a href="refractiveindex calculations.html">Refractiveindex Calculations</a>
+            <a class="active" href="data.html">Data</a>
+        </div>
+        <h1>Hello, from the python world!</h1>
+        <button type="button" onclick="getPathToFile()">Select File</button>
+
+        <div class="header-section">
+            <h1>Upload Files</h1>
+            <p>Upload files you want to share with your team members.</p>
+            <p>PDF, Images & Videos are allowed.</p>
+        </div>
+        
+        <!-- All html, js and css code for upload section from https://github.com/Hassnain243A/hacodes -->
+        <div class="container">
+            <div class="drop-section">
+                <div class="col">
+                    <div class="cloud-icon">
+                        <img src="img/cloud.png" alt="cloud">
+                    </div>
+                    <span>Drag & Drop your files here</span>
+                    <span>OR</span>
+                    <button class="file-selector">Browse Files</button>
+                    <input type="file" class="file-selector-input" multiple>
+                </div>
+                <div class="col">
+                    <div class="drop-here">Drop Here</div>
+                </div>
+            </div>
+            <div class="list-section">
+                <div class="list-title">Uploaded Files</div>
+                <div class="list"></div>
+            </div>
+            <script src="js/upload.js"></script>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,2 @@
+Eel>=0.9.10
+wxPython
