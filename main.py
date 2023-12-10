@@ -8,7 +8,7 @@ https://github.com/PierFelix/Interfometer-Refractive-Index-Measurements
 from traceback import format_exc
 # from expected_fringes import *
 # from refractiveindex_calculations import *
-import wx
+from data import *
 
 try:
     import eel
@@ -19,23 +19,6 @@ except Exception as e:
     print("\nIf Eel does not work, use the designated .py files themself\nAnything inside the last if statement of the files can be edited.\n")
     input("Press Enter to close the application")
     exit()
-
-
-
-
-
-@eel.expose
-def pythonFunction(wildcard="*"):
-    app = wx.App(None)
-    style = wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
-    dialog = wx.FileDialog(None, 'Open', wildcard=wildcard, style=style)
-    if dialog.ShowModal() == wx.ID_OK:
-        path = dialog.GetPath()
-    else:
-        path = None
-    dialog.Destroy()
-    return path
-
 
 # Start the localhost
 try:

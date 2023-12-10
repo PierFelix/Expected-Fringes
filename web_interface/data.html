@@ -1,56 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <title>Interferometer Refractive Index Measurements</title>
-        <link rel="icon" href="img/icon.png">
-        <link rel="stylesheet" href="css/style.css">
 
-        <!-- Include eel.js - note this file doesn't exist in the 'web_interface directory -->
-        <script type="text/javascript" src="/eel.js"></script>
+<head>
+    <title>Data Upload</title>
+    <link rel="icon" href="img/icon.png">
+    <link rel="stylesheet" href="css/body.css">
+    <link rel="stylesheet" href="css/topnav.css">
+    <link rel="stylesheet" href="css/data.css">
+
+    <script type="text/javascript" src="/eel.js"></script>
+    <script type="text/javascript">
+        function getPathToFile() {
+            eel.pythonFunction()(r => console.log(r));
+        };
+    </script>
+</head>
+
+<body>
+    <div id="topnav">
+        <a href="main.html">Home</a>
+        <a href="expected fringes.html">Expected Fringes</a>
+        <a href="refractiveindex calculations.html">Refractiveindex Calculations</a>
+        <a class="active" href="data.html">Data</a>
+    </div>
+    <div class="data_method">
+        <div class="upload">
+            <label for="file">Upload CSV file</label>
+            <input type="file" id="file" accept=".csv, .txt" />
+            <input type="button" id="submit" value="submit" />
+        </div>
+        <div class="manual">
+            <button class="manual-menu">Manual Input</button>
+            <div class="manual-options">
+                <button id="manual-expected-fringes">Expected Fringes</button>
+                <button id="manual-refractiveindex-calculations">Refractiveindex Calculations</button>
+            </div>
+        </div>
+    </div>
+    <div class="Table">
         <script type="text/javascript">
-            function getPathToFile() {
-                eel.pythonFunction()(r => console.log(r));
-            };
+            function table(mode) {
+                function selected(e) {
+                    var cell = e.target;
+                    if (cell.dataset.row == rows-1) {
+                        rows += 1
+                        var tr = document.createElement('tr');
+                        appendRow(tr, mode, cols, rows-1)
+                        cell.parentNode.parentNode.parentNode.appendChild(tr)
+                    }
+                }
+
+                var table = document.createElement('table');
+                table.classList.add('table');
+                table.setAttribute("id", "table")
+
+                var thead = document.createElement('thead');
+                var headRow = document.createElement('tr');
+
+                if (mode == 1) {
+                    var columnNames = ["Angle", "Fringes"];
+                    var cols = columnNames.length;
+
+                    for (var i = 0; i < cols; i++) {
+                        var th = document.createElement('th');
+                        th.appendChild(document.createTextNode(columnNames[i]));
+                        headRow.appendChild(th);
+                    }
+                }
+                else {
+                    var cols = 1;
+                    var th = document.createElement('th');
+                    th.appendChild(document.createTextNode("Thickness"));
+                    headRow.appendChild(th);
+                }
+
+                const start_row = 1;
+                var rows = start_row;
+
+                thead.appendChild(headRow);
+
+                var tbody = document.createElement('tbody');
+
+                function appendRow(parent, mode, cols, i) {
+                    for (var j = 0; j < cols; j++) {
+                        var td = document.createElement('td');
+                        var input = document.createElement('input');
+                        input.type = "text";
+                        if (mode == 1) {
+                            if (j == 0) {
+                                td.addEventListener('mousedown', selected); // Add mousedown listener.
+                                input.value = 'Angle ' + (i + 1);               // Add a value?
+                                td.appendChild(input);
+                                parent.appendChild(td);
+                                td.dataset.row = i;
+                                td.dataset.clm = j;
+                                input.dataset.row = i;
+                                input.dataset.clm = j;
+                                input.dataset.mode = 1;
+                                continue;
+                            }
+                            else {
+                                td.addEventListener('mousedown', selected); // Add mousedown listener.
+                                input.value = 'Fringes ' + (i + 1);               // Add a value?
+                                td.appendChild(input);
+                                parent.appendChild(td);
+                                td.dataset.row = i;
+                                td.dataset.clm = j;
+                                input.dataset.row = i;
+                                input.dataset.clm = j;
+                                input.dataset.mode = 1;
+                                continue;
+                            }
+                        }
+                        else {
+                            td.addEventListener('mousedown', selected); // Add mousedown listener.
+                            input.value = 'Thickness ' + (i + 1);               // Add a value?
+                            td.appendChild(input);
+                            parent.appendChild(td);
+                            td.dataset.row = i;
+                            td.dataset.clm = j;
+                            input.dataset.row = i;
+                            input.dataset.clm = j;
+                            input.dataset.mode = 0;
+                            continue;
+                        }
+                    }
+                }
+
+                for (var i = 0; i < start_row; i++) {
+                    var tr = document.createElement('tr');
+                    appendRow(tr, mode, cols, i)
+                    tbody.appendChild(tr);
+                }
+
+                table.appendChild(thead);
+                table.appendChild(tbody);
+                document.body.appendChild(table);
+            }
+
+            var mode = 1
+
+            table(mode)
+
+            var expected_fringes = document.querySelector("#manual-expected-fringes");
+            expected_fringes.addEventListener("click", updateExp);
+            var refractiveindex_calc = document.querySelector("#manual-refractiveindex-calculations");
+            refractiveindex_calc.addEventListener("click", updateRC);
+
+            function updateExp() {
+                if (mode == 1) {
+                    var tab = document.getElementById("table");
+                    tab.parentNode.removeChild(tab);
+                    mode = 0;
+                    table(mode);
+                }
+            }
+
+            function updateRC() {
+                if (mode == 0) {
+                    var tab = document.getElementById("table");
+                    tab.parentNode.removeChild(tab);
+                    mode = 1;
+                    table(mode);
+                }
+            }
         </script>
-    </head>
+    </div>
 
-    <body>
-        <div class="topnav">
-            <a href="main.html">Home</a>
-            <a href="expected fringes.html">Expected Fringes</a>
-            <a href="refractiveindex calculations.html">Refractiveindex Calculations</a>
-            <a class="active" href="data.html">Data</a>
-        </div>
-        <h1>Hello, from the python world!</h1>
-        <button type="button" onclick="getPathToFile()">Select File</button>
+    <script type="text/javascript">
+        var submit = document.querySelector("#submit");
 
-        <div class="header-section">
-            <h1>Upload Files</h1>
-            <p>Upload files you want to share with your team members.</p>
-            <p>PDF, Images & Videos are allowed.</p>
-        </div>
-        
-        <!-- All html, js and css code for upload section from https://github.com/Hassnain243A/hacodes -->
-        <div class="container">
-            <div class="drop-section">
-                <div class="col">
-                    <div class="cloud-icon">
-                        <img src="img/cloud.png" alt="cloud">
-                    </div>
-                    <span>Drag & Drop your files here</span>
-                    <span>OR</span>
-                    <button class="file-selector">Browse Files</button>
-                    <input type="file" class="file-selector-input" multiple>
-                </div>
-                <div class="col">
-                    <div class="drop-here">Drop Here</div>
-                </div>
-            </div>
-            <div class="list-section">
-                <div class="list-title">Uploaded Files</div>
-                <div class="list"></div>
-            </div>
-            <script src="js/upload.js"></script>
-        </div>
-    </body>
+        submit.addEventListener("click", updateButton);
+
+        function updateButton() {
+            var file = document.getElementById("file").files;
+            if (file.length > 0) {
+                console.log(file[0].getPathToFile);
+            }
+            else {
+                console.log("No file selected.")
+            }
+        }
+    </script>
+</body>
+
 </html>
