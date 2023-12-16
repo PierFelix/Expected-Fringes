@@ -1,2 +1,5 @@
+numpy
+scipy
+matplotlib
+sympy
 Eel>=0.9.10
-wxPython

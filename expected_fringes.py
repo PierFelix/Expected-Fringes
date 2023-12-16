@@ -38,15 +38,15 @@ def plots(x, y, ax, label="", color = None) -> None:
 
 if __name__ == "__main__":
     from os.path import dirname
-    t = [1.0, 2.0, 3.0, 4.0] # mm
+    t = [2.9, 3.0, 3.1] # mm
     wavelength = 532e-6 # mm
     material = "Acrylic"
     n = 1.48899
 
     min_deg = 0
-    max_deg = 10
+    max_deg = 20
     steps = 10000
-    plot_y_limit = 80
+    plot_y_limit = None
 
     plot = True
 

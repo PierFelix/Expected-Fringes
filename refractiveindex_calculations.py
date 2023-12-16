@@ -6,44 +6,107 @@ https://github.com/PierFelix/Interfometer-Refractive-Index-Measurements
 """
 
 import numpy as np
+import matplotlib.pyplot as plt
 
-def refractiveindex(angle, N, thickness, wavelength, deg = True):
+
+def fringes(thickness, index_of_refraction, wavelength, angle_i, deg = True):
     """
-    Calculates the refractive index with the following formula:
-        n = (8·t²·cos(i) - 8·t² - 4·t·λ·N·cos(i) + 4·t·λ·N - λ²·N²)/(4·t·(2·t·cos(i) - 2·t + λ·N))
+    Calculates the expected amount of fringes, approximates the index of refraction of air as 1. 
 
-    angle: angle of incidence of the light
-    N: amount of `bright -> dark -> bright` transitions (or the opposite)
+    N = (2t / wavelength) * ((n/cos(r)+tan(i)*sin(i)-tan(r)*sin(i)-(n-1)-(1/cos(i)))) \n
+    r = arcsin(sin(i)/n)
+
     thickness: thickness of the material
-    wavelength: wavelength of the laser
+    index_of_refraction: index of refraction of the material
+    wavelength: wavelength of the light emitted by the laser
+    angle_i: angle of incidence of the light
     """
     if deg:
-        angle = angle*np.pi/180
+        angle_i = (angle_i*np.pi)/180 # numpy only works with radians
 
-    p1 = 8*(thickness**2)
-    p2 = 4*thickness*wavelength*N
-    p3 = p2 - p1
-    cos = np.cos(angle)
+    sin_i = np.sin(angle_i)
+    r = np.arcsin(sin_i/index_of_refraction)
+    N = (2*thickness / wavelength) * ((index_of_refraction/np.cos(r))+np.tan(angle_i)*sin_i-np.tan(r)*sin_i-(index_of_refraction-1)-(1/np.cos(angle_i)))
+    return N
 
-    n = (cos*(p1-p2) + p3 -(wavelength * N)**2)/((p1*cos + p3))
 
-    return n
+def plots(x, y, ax, label="", color = None, linestyle=None) -> None:
+    """
+    Plots an extra line on the axis.
+    """
+    ax.plot(x,y, label=f"{label}", c=color, linestyle=linestyle)
 
 if __name__ == "__main__":
-    t = 3 # mm
-    l = 532e-6 # mm
-    measurements = [
-            [10, 10],
-            [10, 18],
-            [10, 18],
-            [6.7, 8],
-            [6.7, 9],
-            [10, 18],
-            [10, 17],
-            [10, 19],
-            [10, 21]
-        ]
-        
-    for j in measurements:
-        print(f"""Deg = {j[0]}, N = {j[1]}
-    n = {refractiveindex(*j, t, l)}""")
+    from os.path import dirname
+
+    measurements = np.array([
+        [3,	4.5],
+        [4,	8.5],
+        [5,	12.5],
+        [5,	14],
+        [5,	13.5],
+        [5,	13],
+        [5,	12.5],
+        [6,	18.5],
+        [7,	26],
+        [8,	33],
+        [9,	42.5],
+        [10, 51.5],
+        [10, 51.5],
+        [10, 52],
+        [10, 53],
+        [10, 53.5],
+        [11, 62.5],
+        [12, 65.5],
+        [13, 101.5],
+        [14, 103.5],
+        [15, 120.5],
+        [15, 119.5],
+        [15, 118.5],
+        [15, 118],
+        [15, 121],
+        [16, 135.5],
+        [17, 154],
+        [18, 173.5],
+        [19, 196],
+        [20, 215.5],
+        [20, 215],
+        [20, 216],
+        [20, 216.5],
+        [20, 214]
+
+    ])
+
+    t = [2.8, 3.0, 3.2] # mm
+    wavelength = 532e-6 # mm
+    material = "Acrylic"
+    n = 1.48899
+
+    min_deg = 0
+    max_deg = 20
+    steps = 10000
+    plot_y_limit = None
+
+    plot = True
+
+    i_deg = np.linspace(min_deg, max_deg, steps)
+
+    fig, ax1 = plt.subplots()
+
+    for j in t:
+        N = fringes(j, n, wavelength, i_deg)
+        if plot:
+            plots(x=i_deg, y=N, ax=ax1, label=f"{j} mm", linestyle="--")
+
+    ax1.scatter(measurements[:, 0], measurements[:, 1], c="Red", zorder=2, label="Metingen")
+
+    ax1.set_title(f"Material: {material}, n = {n}")
+    ax1.set_ylim(0, plot_y_limit)
+    box1 = ax1.get_position()
+    ax1.set_position([box1.x0, box1.y0, box1.width * 0.875, box1.height])
+    ax1.legend(loc='center left', bbox_to_anchor=(1, 0.5), reverse=True, title="Thickness", title_fontsize="large")
+    ax1.set_xlabel("Angle (DEG)")
+    ax1.set_ylabel("Fringes (-)")
+    ax1.grid()
+    fig.savefig(f"{dirname(__file__)}/Measurement_{material}.png")
+    plt.close()
