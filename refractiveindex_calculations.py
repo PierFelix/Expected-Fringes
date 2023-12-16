@@ -7,9 +7,13 @@ https://github.com/PierFelix/Interfometer-Refractive-Index-Measurements
 
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
 
 
-def fringes(thickness, index_of_refraction, wavelength, angle_i, deg = True):
+def sqrt(x):
+    return x**0.5
+
+def fringes(angle_i, index_of_refraction, thickness, wavelength):
     """
     Calculates the expected amount of fringes, approximates the index of refraction of air as 1. 
 
@@ -21,12 +25,23 @@ def fringes(thickness, index_of_refraction, wavelength, angle_i, deg = True):
     wavelength: wavelength of the light emitted by the laser
     angle_i: angle of incidence of the light
     """
-    if deg:
-        angle_i = (angle_i*np.pi)/180 # numpy only works with radians
 
+    angle_i = (angle_i*np.pi)/180
     sin_i = np.sin(angle_i)
     r = np.arcsin(sin_i/index_of_refraction)
-    N = (2*thickness / wavelength) * ((index_of_refraction/np.cos(r))+np.tan(angle_i)*sin_i-np.tan(r)*sin_i-(index_of_refraction-1)-(1/np.cos(angle_i)))
+    Alpha = (2*thickness / wavelength)
+    #N = (2*thickness / wavelength) * ((index_of_refraction/np.cos(r))+np.tan(angle_i)*sin_i-np.tan(r)*sin_i-(index_of_refraction-1)-(1/np.cos(angle_i)))
+    N = (
+        Alpha
+        - Alpha / np.cos(angle_i)
+        + Alpha * index_of_refraction / (np.cos(np.arcsin(np.sin(angle_i) / index_of_refraction)))
+        + Alpha * np.tan(angle_i) * np.sin(angle_i)
+        - Alpha * np.tan(np.arcsin(np.sin(angle_i)/index_of_refraction)) * np.sin(angle_i)
+        - Alpha * index_of_refraction
+        )
+    # N = -(2 t sin^2(i))/(l n sqrt(1 - (sin^2(i))/n^2)) + (2 n t)/(l sqrt(1 - (sin^2(i))/n^2)) - (2 t sec(i))/l + (2 t sin(i) tan(i))/l - (2 n t)/l + (2 t)/l
+    #N = -(2*thickness*np.sin(angle_i)**2)/(wavelength*index_of_refraction*sqrt(1 - (np.sin(angle_i)**2)/index_of_refraction**2)) + (2*index_of_refraction*thickness)/(wavelength*sqrt(1 - (np.sin(angle_i)**2)/index_of_refraction**2)) - (2*thickness*1/(np.cos(angle_i)))/wavelength + (2*thickness*np.sin(angle_i)*np.tan(angle_i))/wavelength - (2*index_of_refraction*thickness)/wavelength + (2*thickness)/wavelength
+
     return N
 
 
@@ -35,6 +50,42 @@ def plots(x, y, ax, label="", color = None, linestyle=None) -> None:
     Plots an extra line on the axis.
     """
     ax.plot(x,y, label=f"{label}", c=color, linestyle=linestyle)
+
+
+def fit(v1, v2, t, w, p0 = None):
+    
+    v1, v2 = np.array(v1), np.array(v2)
+    v1 = v1*np.pi/180
+    Alpha = (2*t / w)
+    N = (
+        Alpha
+        - Alpha / np.cos(v1)
+        + Alpha * index_of_refraction / (np.cos(np.arcsin(np.sin(v1) / index_of_refraction)))
+        + Alpha * np.tan(v1) * np.sin(v1)
+        - Alpha * np.tan(np.arcsin(np.sin(v1)/index_of_refraction)) * np.sin(v1)
+        - Alpha * index_of_refraction
+        )
+
+    A=np.array(
+        [np.ones(np.size(v1)),
+         1/v1,
+         1/(v1**2),
+        ]).transpose()
+
+    N = A.transpose()@A
+    q = A.transpose()@v2
+    [alpha, beta, gamma] = np.linalg.solve(N, q)
+    x = np.linspace(v1[0], v1[-1], 10000)
+    y = alpha + beta/x + gamma/(x**2)
+
+    print("\nFit parameters voor formule [y = a + b/x + c/x^2]")
+    print(*[alpha, beta, gamma])
+
+
+
+    popt, pcov = curve_fit(lambda i, n: fringes(i, n, t, w), v1, v2, p0=p0)
+    print(popt)
+    return popt[0]
 
 if __name__ == "__main__":
     from os.path import dirname
@@ -80,7 +131,7 @@ if __name__ == "__main__":
     t = [2.8, 3.0, 3.2] # mm
     wavelength = 532e-6 # mm
     material = "Acrylic"
-    n = 1.48899
+    index_of_refraction = 1.48899
 
     min_deg = 0
     max_deg = 20
@@ -94,13 +145,16 @@ if __name__ == "__main__":
     fig, ax1 = plt.subplots()
 
     for j in t:
-        N = fringes(j, n, wavelength, i_deg)
+        N = fringes(i_deg, index_of_refraction, j, wavelength)
         if plot:
             plots(x=i_deg, y=N, ax=ax1, label=f"{j} mm", linestyle="--")
 
+    N = fringes(i_deg, fit(measurements[:, 0], measurements[:, 0], t=3.0, w=wavelength, p0=index_of_refraction), 3.0, wavelength)
+    #plots(x=i_deg, y=N, ax=ax1, label=f"Fit (3mm)")
+
     ax1.scatter(measurements[:, 0], measurements[:, 1], c="Red", zorder=2, label="Metingen")
 
-    ax1.set_title(f"Material: {material}, n = {n}")
+    ax1.set_title(f"Material: {material}, n = {index_of_refraction}")
     ax1.set_ylim(0, plot_y_limit)
     box1 = ax1.get_position()
     ax1.set_position([box1.x0, box1.y0, box1.width * 0.875, box1.height])
