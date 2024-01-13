@@ -53,6 +53,14 @@ if __name__ == "__main__":
     i_deg = np.linspace(min_deg, max_deg, steps)
 
     fig, ax1 = plt.subplots()
+    fig.set_facecolor("#404040")
+    ax1.set_facecolor("#404040")
+    ax1.spines['bottom'].set_color("#d8d8d8")
+    ax1.spines['top'].set_color('#d8d8d8') 
+    ax1.spines['right'].set_color('#d8d8d8')
+    ax1.spines['left'].set_color('#d8d8d8')
+    ax1.tick_params(axis='x', colors='#d8d8d8')
+    ax1.tick_params(axis='y', colors='#d8d8d8')
 
     table = []
     for j in t:
@@ -61,13 +69,13 @@ if __name__ == "__main__":
         if plot:
             plots(x=i_deg, y=N, ax=ax1, label=f"{j} mm")
 
-    ax1.set_title(f"Material: {material}, n = {n}")
+    ax1.set_title(f"Material: {material}, n = {n}", c="#d8d8d8")
     ax1.set_ylim(0, plot_y_limit)
     box1 = ax1.get_position()
     ax1.set_position([box1.x0, box1.y0, box1.width * 0.9, box1.height])
     ax1.legend(loc='center left', bbox_to_anchor=(1, 0.5), reverse=True, title="Thickness", title_fontsize="large")
-    ax1.set_xlabel("Angle (DEG)")
-    ax1.set_ylabel("Fringes (-)")
+    ax1.set_xlabel("Angle (DEG)", c="#d8d8d8")
+    ax1.set_ylabel("Fringes (-)", c="#d8d8d8")
     ax1.grid()
     fig.savefig(f"{dirname(__file__)}/{material}.png")
     plt.close()

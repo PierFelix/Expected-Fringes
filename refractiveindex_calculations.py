@@ -58,12 +58,12 @@ def fit(v1, v2, t, w, p0 = None):
     v1 = v1*np.pi/180
     Alpha = (2*t / w)
     N = (
-        Alpha
-        - Alpha / np.cos(v1)
-        + Alpha * index_of_refraction / (np.cos(np.arcsin(np.sin(v1) / index_of_refraction)))
-        + Alpha * np.tan(v1) * np.sin(v1)
-        - Alpha * np.tan(np.arcsin(np.sin(v1)/index_of_refraction)) * np.sin(v1)
-        - Alpha * index_of_refraction
+        (6e6 / 532)
+        - (6e6 / 532) / np.cos(v1)
+        + (6e6 / 532) * index_of_refraction / (np.cos(np.arcsin(np.sin(v1) / index_of_refraction)))
+        + (6e6 / 532) * np.tan(v1) * np.sin(v1)
+        - (6e6 / 532) * np.tan(np.arcsin(np.sin(v1)/index_of_refraction)) * np.sin(v1)
+        - (6e6 / 532) * index_of_refraction
         )
 
     A=np.array(
@@ -128,10 +128,10 @@ if __name__ == "__main__":
 
     ])
 
-    t = [2.8, 3.0, 3.2] # mm
+    t = [2.83] # mm
     wavelength = 532e-6 # mm
-    material = "Acrylic"
-    index_of_refraction = 1.48899
+    material = "Acrylaat"
+    index_of_refraction = 1.48
 
     min_deg = 0
     max_deg = 20
@@ -143,24 +143,32 @@ if __name__ == "__main__":
     i_deg = np.linspace(min_deg, max_deg, steps)
 
     fig, ax1 = plt.subplots()
+    fig.set_facecolor("#404040")
+    ax1.set_facecolor("#404040")
+    ax1.spines['bottom'].set_color("#d8d8d8")
+    ax1.spines['top'].set_color('#d8d8d8') 
+    ax1.spines['right'].set_color('#d8d8d8')
+    ax1.spines['left'].set_color('#d8d8d8')
+    ax1.tick_params(axis='x', colors='#d8d8d8')
+    ax1.tick_params(axis='y', colors='#d8d8d8')
 
     for j in t:
         N = fringes(i_deg, index_of_refraction, j, wavelength)
         if plot:
-            plots(x=i_deg, y=N, ax=ax1, label=f"{j} mm", linestyle="--")
+            plots(x=i_deg, y=N, ax=ax1, label=f"Theorie", linestyle="--")
 
     N = fringes(i_deg, fit(measurements[:, 0], measurements[:, 0], t=3.0, w=wavelength, p0=index_of_refraction), 3.0, wavelength)
     #plots(x=i_deg, y=N, ax=ax1, label=f"Fit (3mm)")
 
     ax1.scatter(measurements[:, 0], measurements[:, 1], c="Red", zorder=2, label="Metingen")
 
-    ax1.set_title(f"Material: {material}, n = {index_of_refraction}")
+    ax1.set_title(f"Materiaal: {material}, n = {index_of_refraction}, d = {t[0]}mm", c="#d8d8d8")
     ax1.set_ylim(0, plot_y_limit)
     box1 = ax1.get_position()
     ax1.set_position([box1.x0, box1.y0, box1.width * 0.875, box1.height])
-    ax1.legend(loc='center left', bbox_to_anchor=(1, 0.5), reverse=True, title="Thickness", title_fontsize="large")
-    ax1.set_xlabel("Angle (DEG)")
-    ax1.set_ylabel("Fringes (-)")
+    ax1.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+    ax1.set_xlabel("Hoek (DEG)", c="#d8d8d8")
+    ax1.set_ylabel("Franjes (-)", c="#d8d8d8")
     ax1.grid()
     fig.savefig(f"{dirname(__file__)}/Measurement_{material}.png")
     plt.close()
